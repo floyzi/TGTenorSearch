@@ -13,14 +13,7 @@ namespace TGTenorSearch.Models.Tenor.V2
         public override TenorMedia? GetMedia()
         {
             if (Media == null || Media.Count == 0) return null;
-
-            foreach (var media in new string[] { "gif", "mp4", "tinygif" })
-            {
-                if (Media.TryGetValue(media, out var result) && result.Size < MAX_MEDIA_SIZE) 
-                    return result;
-            }
-
-            return null;
+            return GetPreferredMedia(Media);
         }
     }
 }

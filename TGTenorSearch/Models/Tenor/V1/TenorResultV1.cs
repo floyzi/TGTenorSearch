@@ -16,13 +16,8 @@ namespace TGTenorSearch.Models.Tenor.V1
 
             var medias = Media.FirstOrDefault();
             if (medias == null) return null;
-            foreach (var media in new string[] { "gif", "mp4", "tinygif" })
-            {
-                if (medias.TryGetValue(media, out var result) && result.Size < MAX_MEDIA_SIZE)
-                    return result;
-            }
 
-            return null;
+            return GetPreferredMedia(medias);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace TGTenorSearch
         const string TENOR_V1_API = "https://api.tenor.com/v1";
         const string TENOR_V2_API = "https://tenor.googleapis.com/v2";
 
-        HttpClient? client = new();
+        readonly HttpClient? client = new();
 
         internal async Task<(List<InlineQueryResult>, string)> GetResults<TTenorResponse, TTenorResult>(string q, string? offset = "")
           where TTenorResponse : TenorResponseBase<TTenorResult>
