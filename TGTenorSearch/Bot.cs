@@ -89,7 +89,16 @@ namespace TGTenorSearch
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                await bot.AnswerInlineQuery(inlineQuery.Id, null!);
+                await bot.AnswerInlineQuery(inlineQuery.Id,
+                [
+                    new InlineQueryResultArticle()
+                    {
+                        Id = inlineQuery.Id,
+                        Title = "Error",
+                        Description = "An exception were thrown, click to see the details",
+                        InputMessageContent = new InputTextMessageContent(e.ToString())
+                    }
+                ], 0);
             }
         }
     }
