@@ -1,7 +1,7 @@
 # Telegram Tenor GIF Search 
 Bot to search for Tenor GIFs in Telegram<br>
 Supports both versions of Tenor API (api.tenor.com/v1 and tenor.googleapis.com/v2)<br><br>
-You can find hosted version on [@tenrgifbot](https://t.me/@tenrgifbot) in Telegram<br>
+You can find hosted version on [@tenrgifbot](https://t.me/tenrgifbot) in Telegram<br>
 
 # Known Tenor API keys
 | Source | Key | client_key | API Version |
