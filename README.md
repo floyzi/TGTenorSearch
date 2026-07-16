@@ -1,5 +1,6 @@
 # Telegram Tenor GIF Search 
 Bot to search for Tenor GIFs in Telegram (after Tenor API shutdown, but it doesn't matter)<br>
+Supports both versions of Tenor API<br>
 [Heavily inspired by this Vencord plugin](https://github.com/Vendicated/Vencord/tree/main/src/plugins/tenorGifSearch)
 
 # Known API keys
