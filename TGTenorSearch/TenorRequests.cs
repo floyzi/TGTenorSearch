@@ -15,15 +15,14 @@ namespace TGTenorSearch
 
         readonly HttpClient? client = new();
 
-        internal async Task<(List<InlineQueryResult>, string)> GetResults<TTenorResponse, TTenorResult>(string q, string? offset = "")
-          where TTenorResponse : TenorResponseBase<TTenorResult>
-          where TTenorResult : TenorResultBase
+        internal async Task<(List<InlineQueryResult>, string)> GetResults<TResponse>(string q, string? offset = "")
+          where TResponse : ITenorResponse
         {
             var results = new List<InlineQueryResult>();
 
-            var tenorResult = await Search<TTenorResponse>(q, offset);
+            var tenorResult = await Search<TResponse>(q, offset);
 
-            if (tenorResult == null || tenorResult.Results == null || tenorResult.Results.Count == 0) return new(results, "");
+            if (tenorResult == null || tenorResult.Results == null || !tenorResult.Results.Any()) return new(results, "");
 
             foreach (var gif in tenorResult.Results!)
             {
@@ -53,7 +52,7 @@ namespace TGTenorSearch
             return new(results, tenorResult.Next!);
         }
 
-        async Task<T> Search<T>(string q, string? offset = "") where T : class
+        async Task<T> Search<T>(string q, string? offset = "") where T : ITenorResponse
         {
             if (client == null) throw new InvalidOperationException();
 
