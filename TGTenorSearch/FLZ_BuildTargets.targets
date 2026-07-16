@@ -1,0 +1,38 @@
+<Project>
+  <PropertyGroup>
+    <BuildNumber>1</BuildNumber>
+  </PropertyGroup>
+  <Target Name="SetBuildNum" BeforeTargets="GenerateBuildDetails" Condition="'$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <NewBuildNumber>$([MSBuild]::Add($(BuildNumber), 1))</NewBuildNumber>
+    </PropertyGroup>
+    <XmlPoke XmlInputPath="$(MSBuildThisFileFullPath)" Query="Project/PropertyGroup/BuildNumber" Value="$(NewBuildNumber)" />
+    <PropertyGroup>
+      <BuildNumber>$(NewBuildNumber)</BuildNumber>
+    </PropertyGroup>
+  </Target>
+  <Target Name="GenerateBuildDetails" BeforeTargets="BeforeCompile" DependsOnTargets="GenerateAssemblyInfo">
+    <PropertyGroup>
+      <GeneratedText><![CDATA[
+namespace $(RootNamespace)
+{
+	public static class $(RootNamespace)BuildDetails
+    {
+        public const int BuildNumber = $(BuildNumber)%3B
+		public const string Version = "$(Version)"%3B
+		public const string Config = "$(Configuration)"%3B
+		public const string CommitHash = "$(SourceRevisionId)"%3B
+		public static long BuildTimestamp = $([System.DateTimeOffset]::UtcNow.ToUnixTimeSeconds())%3B
+        public const string Name = "$(ProductName)"%3B
+		public const string Description = "$(Description)"%3B
+		public const string Authors = "$(Authors)"%3B
+	}
+}
+				]]></GeneratedText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)GeneratedBuildDetails.cs" Lines="$(GeneratedText)" Overwrite="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)GeneratedBuildDetails.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

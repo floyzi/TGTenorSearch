@@ -15,5 +15,8 @@ namespace TGTenorSearch.Models
 
         [JsonPropertyName("client_key")]
         public string? ClientKey { get; set; }
+
+        [JsonPropertyName("dev_id")]
+        public long DevID { get; set; }
     }
 }

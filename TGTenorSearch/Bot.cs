@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
 using System.Web;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -53,11 +55,23 @@ namespace TGTenorSearch
             //days without proper telegram bot command handling: 4719
             if ((message.Chat.Type == ChatType.Private && message.Text == "/start") || message.Text == "/start@" + currentUsername)
             {
-                await bot.SendMessage(message.Chat, $"This bot can help you find and share GIFs. " +
+                var sb = new StringBuilder();
+                sb.AppendLine($"This bot can help you find and share GIFs. " +
                     $"It works automatically, no need to add it anywhere. " +
                     $"Simply open any of your chats and type <code>@{currentUsername} something</code> in the message field. " +
                     $"Then tap on a result to send.\n\n" +
-                    $"For example, try typing <code>@{currentUsername} happy dog</code> here.", ParseMode.Html);
+                    $"For example, try typing <code>@{currentUsername} happy dog</code> here.");
+
+                if (message.From?.Id == Program.Config!.DevID)
+                {
+                    var upT = DateTime.UtcNow - Program.StartedAt;
+                    var mem = Process.GetCurrentProcess().WorkingSet64 / 1024.0 / 1024.0;
+
+
+                    sb.AppendLine($"\nDEBUG: uptime: {(int)upT.TotalDays}d {upT.Hours}h {upT.Minutes}m {upT.Seconds}s | mem: {mem:F1} MB | commit: {TGTenorSearchBuildDetails.CommitHash[..12]}");
+                }
+
+                await bot.SendMessage(message.Chat, sb.ToString(), ParseMode.Html);
             }
         }
 
