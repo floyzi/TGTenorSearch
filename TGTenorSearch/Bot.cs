@@ -11,7 +11,7 @@ namespace TGTenorSearch
     internal class Bot
     {
         const string TENOR_API = "https://api.tenor.com/v1/";
-
+        string? currentUsername;
         TelegramBotClient? bot;
         HttpClient? client;
 
@@ -22,7 +22,8 @@ namespace TGTenorSearch
 
             var me = await bot!.GetMe();
 
-            Console.WriteLine("Connected to " + me.Username);
+            currentUsername = me.Username;
+            Console.WriteLine("Connected to @" + currentUsername);
 
             await bot!.DropPendingUpdates();
 
@@ -33,9 +34,26 @@ namespace TGTenorSearch
         {
             switch (update.Type)
             {
+                case UpdateType.Message:
+                    await OnMessageReceived(update.Message!);
+                    break;
                 case UpdateType.InlineQuery:
                     await OnInlineQueryReceived(update.InlineQuery!);
                     break;
+            }
+        }
+
+        async Task OnMessageReceived(Message message)
+        {
+            if (bot == null) throw new InvalidOperationException();
+
+            if (message.Text == "/start" || message.Text == "/start@" + currentUsername) //days without proper telegram bot commands handling: 4719
+            {
+                await bot.SendMessage(message.Chat, $"This bot can help you find and share GIFs. " +
+                    $"It works automatically, no need to add it anywhere. " +
+                    $"Simply open any of your chats and type <code>@{currentUsername} something</code> in the message field. " +
+                    $"Then tap on a result to send.\n\n" +
+                    $"For example, try typing <code>@{currentUsername} happy dog</code> here.", ParseMode.Html);
             }
         }
 
