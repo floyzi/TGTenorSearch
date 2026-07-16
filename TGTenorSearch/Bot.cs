@@ -9,6 +9,8 @@ namespace TGTenorSearch
 {
     internal class Bot
     {
+        const string TENOR_API = "https://api.tenor.com/v1/";
+
         TelegramBotClient? bot;
 
         internal async Task Launch(string token)
@@ -42,10 +44,10 @@ namespace TGTenorSearch
 
             using var client = new HttpClient();
 
-            var uri = new UriBuilder("https://api.tenor.com/v1/search");
+            var uri = new UriBuilder(TENOR_API + "search");
 
             var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            query["key"] = "3Z0688EVWYKH";
+            query["key"] = Program.Config!.TenorKey;
             query["locale"] = "en_us";
             query["q"] = inlineQuery.Query;
             query["limit"] = "50";
@@ -63,14 +65,12 @@ namespace TGTenorSearch
             {
                 var gifMedia = gif.Media[0]["gif"];
 
-                Console.WriteLine(gif.Media[0]["gif"]);
-
                 results.Add(new InlineQueryResultGif()
                 {
                     Id = gif.Id,
                     GifUrl = gifMedia.Url,
                     ThumbnailUrl = gifMedia.Preview,
-                 
+                    GifDuration = (int)gifMedia.Duration,
                     GifWidth = gifMedia.Dimensions.ElementAt(0),
                     GifHeight = gifMedia.Dimensions.ElementAt(1),
                     

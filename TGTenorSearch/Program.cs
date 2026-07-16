@@ -3,9 +3,10 @@ using TGTenorSearch;
 using TGTenorSearch.Models;
 
 public static class Program
-{ 
-    static Config? Config;
+{
+    public static Config? Config;
     static Bot? Bot;
+
     public static async Task Main(string[] args)
     {
         var confPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");

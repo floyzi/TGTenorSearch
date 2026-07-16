@@ -10,6 +10,9 @@ namespace TGTenorSearch.Models
         [JsonPropertyName("url")]
         public required string Url { get; set; }
 
+        [JsonPropertyName("duration")]
+        public float Duration { get; set; }
+
         [JsonPropertyName("dims")]
         public int[]? Dimensions { get; set; }
     }
