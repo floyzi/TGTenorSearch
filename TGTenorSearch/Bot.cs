@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Web;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -12,10 +13,12 @@ namespace TGTenorSearch
         const string TENOR_API = "https://api.tenor.com/v1/";
 
         TelegramBotClient? bot;
+        HttpClient? client;
 
         internal async Task Launch(string token)
         {
-            bot = new TelegramBotClient(token);
+            client = new();
+            bot = new(token);
 
             var me = await bot!.GetMe();
 
@@ -28,11 +31,10 @@ namespace TGTenorSearch
 
         async Task OnUpdate(Update update)
         {
-            Console.WriteLine(update.Type);
             switch (update.Type)
             {
                 case UpdateType.InlineQuery:
-                    await OnInlineQueryReceived(update.InlineQuery);
+                    await OnInlineQueryReceived(update.InlineQuery!);
                     break;
             }
         }
@@ -40,44 +42,79 @@ namespace TGTenorSearch
         
         async Task OnInlineQueryReceived(InlineQuery inlineQuery)
         {
+            if (bot == null) throw new InvalidOperationException();
+
             var results = new List<InlineQueryResult>();
 
-            using var client = new HttpClient();
+            try
+            {
+                var tenorResult = await Search(inlineQuery.Query, inlineQuery.Offset);
+
+                if (tenorResult.Results == null || tenorResult.Results.Count == 0)
+                {
+                    await bot.AnswerInlineQuery(inlineQuery.Id, results);
+                    return;
+                }
+
+                foreach (var gif in tenorResult.Results)
+                {
+                    if (gif.Media == null || gif.Media.Count == 0) continue;
+                    if (!gif.Media.FirstOrDefault()!.TryGetValue("gif", out var gifMedia)) continue;
+
+                    if (string.IsNullOrEmpty(gif.Id) || string.IsNullOrEmpty(gifMedia.Url) || string.IsNullOrEmpty(gifMedia.Preview)) continue;
+
+                    var gifRes = new InlineQueryResultGif()
+                    {
+                        Id = gif.Id,
+                        GifUrl = gifMedia.Url,
+                        ThumbnailUrl = gifMedia.Preview,
+                        GifDuration = (int)gifMedia.Duration,
+                    };
+
+                    if (gifMedia.Dimensions != null && gifMedia.Dimensions.Length == 2)
+                    {
+                        gifRes.GifWidth = gifMedia.Dimensions[0];
+                        gifRes.GifHeight = gifMedia.Dimensions[1];
+                    }
+
+                    results.Add(gifRes);
+                }
+
+                await bot.AnswerInlineQuery(inlineQuery.Id, results, 0, false, tenorResult.Next);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                await bot.AnswerInlineQuery(inlineQuery.Id, results);
+            }
+        }
+
+        async Task<TenorResponse> Search(string q, string? offset = "")
+        {
+            if (client == null) throw new InvalidOperationException();
 
             var uri = new UriBuilder(TENOR_API + "search");
 
-            var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            var query = HttpUtility.ParseQueryString(string.Empty);
             query["key"] = Program.Config!.TenorKey;
             query["locale"] = "en_us";
-            query["q"] = inlineQuery.Query;
+            query["q"] = q;
             query["limit"] = "50";
 
-            if (!string.IsNullOrEmpty(inlineQuery.Offset))
-                query["pos"] = inlineQuery.Offset;
+            if (!string.IsNullOrEmpty(offset))
+                query["pos"] = offset;
 
             uri.Query = query.ToString();
 
             var res = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, uri.Uri));
 
-            var json = JsonSerializer.Deserialize<TenorResponse>(await res.Content.ReadAsStringAsync());
+            res.EnsureSuccessStatusCode();
 
-            foreach (var gif in json.Results)
-            {
-                var gifMedia = gif.Media[0]["gif"];
+            var str = await res.Content.ReadAsStringAsync();
 
-                results.Add(new InlineQueryResultGif()
-                {
-                    Id = gif.Id,
-                    GifUrl = gifMedia.Url,
-                    ThumbnailUrl = gifMedia.Preview,
-                    GifDuration = (int)gifMedia.Duration,
-                    GifWidth = gifMedia.Dimensions.ElementAt(0),
-                    GifHeight = gifMedia.Dimensions.ElementAt(1),
-                    
-                });
-            }
+            if (string.IsNullOrEmpty(str)) throw new Exception("Invalid response");
 
-            await bot.AnswerInlineQuery(inlineQuery.Id, results, nextOffset: json.Next, cacheTime: 0);
+            return JsonSerializer.Deserialize<TenorResponse>(str)!;
         }
     }
 }
