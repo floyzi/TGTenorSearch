@@ -67,7 +67,6 @@ namespace TGTenorSearch
                     var upT = DateTime.UtcNow - Program.StartedAt;
                     var mem = Process.GetCurrentProcess().WorkingSet64 / 1024.0 / 1024.0;
 
-
                     sb.AppendLine($"\nDEBUG: uptime: {(int)upT.TotalDays}d {upT.Hours}h {upT.Minutes}m {upT.Seconds}s | mem: {mem:F1} MB | commit: {TGTenorSearchBuildDetails.CommitHash[..12]}");
                 }
 
