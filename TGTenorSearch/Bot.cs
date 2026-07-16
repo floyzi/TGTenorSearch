@@ -22,7 +22,7 @@ namespace TGTenorSearch
 
             var me = await bot!.GetMe();
 
-            Console.WriteLine("connected to " + me.Username);
+            Console.WriteLine("Connected to " + me.Username);
 
             await bot!.DropPendingUpdates();
 
@@ -93,13 +93,20 @@ namespace TGTenorSearch
         {
             if (client == null) throw new InvalidOperationException();
 
-            var uri = new UriBuilder(TENOR_API + "search");
+            var uri = new UriBuilder(TENOR_API + (!string.IsNullOrEmpty(q) ? "search" : "trending"));
 
             var query = HttpUtility.ParseQueryString(string.Empty);
+
+            if (string.IsNullOrEmpty(Program.Config!.TenorKey)) throw new InvalidOperationException("No tenor API key provided");
+
             query["key"] = Program.Config!.TenorKey;
-            query["locale"] = "en_us";
-            query["q"] = q;
+            query["locale"] = "en_US";
+
+            if (!string.IsNullOrEmpty(q))
+                query["q"] = q;
+
             query["limit"] = "50";
+            query["media_filter"] = "minimal";
 
             if (!string.IsNullOrEmpty(offset))
                 query["pos"] = offset;
