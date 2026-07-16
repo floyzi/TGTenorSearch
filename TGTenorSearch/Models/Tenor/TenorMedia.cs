@@ -15,5 +15,8 @@ namespace TGTenorSearch.Models.Tenor
 
         [JsonPropertyName("dims")]
         public int[]? Dimensions { get; set; }
+
+        [JsonPropertyName("size")]
+        public long Size { get; set; }
     }
 }

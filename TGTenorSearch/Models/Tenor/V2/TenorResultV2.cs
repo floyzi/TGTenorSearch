@@ -10,12 +10,17 @@ namespace TGTenorSearch.Models.Tenor.V2
         [JsonPropertyName("media_formats")]
         public Dictionary<string, TenorMedia>? Media { get; set; }
 
-        public override TenorMedia? GetMedia(string key)
+        public override TenorMedia? GetMedia()
         {
             if (Media == null || Media.Count == 0) return null;
-            if (!Media.TryGetValue(key, out var res)) return null;
 
-            return res;
+            foreach (var media in new string[] { "gif", "mp4", "tinygif" })
+            {
+                if (Media.TryGetValue(media, out var result) && result.Size < MAX_MEDIA_SIZE) 
+                    return result;
+            }
+
+            return null;
         }
     }
 }

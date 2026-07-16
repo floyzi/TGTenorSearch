@@ -94,9 +94,11 @@ namespace TGTenorSearch
 
             foreach (var gif in tenorResult.Results!)
             {
-                var gifMedia = gif.GetMedia("gif");
+                if (string.IsNullOrEmpty(gif.Id)) continue;
 
-                if (gifMedia == null || string.IsNullOrEmpty(gif.Id) || string.IsNullOrEmpty(gifMedia.Url)) continue;
+                var gifMedia = gif.GetMedia();
+
+                if (gifMedia == null || string.IsNullOrEmpty(gifMedia.Url)) continue;
 
                 var gifRes = new InlineQueryResultGif()
                 {
@@ -138,7 +140,7 @@ namespace TGTenorSearch
                 query["q"] = q;
 
             query["limit"] = "50";
-            query["media_filter"] = isV1 ? "minimal" : "gif";
+            query["media_filter"] = isV1 ? "minimal" : "gif,tinygif,mp4";
 
             if (!isV1)
                 query["client_key"] = Program.Config.ClientKey;
