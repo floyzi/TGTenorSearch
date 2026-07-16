@@ -81,8 +81,8 @@ namespace TGTenorSearch
                 if (string.IsNullOrEmpty(Program.Config!.APIKey)) throw new InvalidOperationException("No tenor API key provided");
 
                 var queryResult = Program.Config!.APIKey.Length <= 12 
-                    ? await requestSender.GetResults<TenorResponseV1, TenorResultV1>(inlineQuery.Query, true, inlineQuery.Offset) 
-                    : await requestSender.GetResults<TenorResponseV2, TenorResultV2>(inlineQuery.Query, false, inlineQuery.Offset);
+                    ? await requestSender.GetResults<TenorResponseV1, TenorResultV1>(inlineQuery.Query, inlineQuery.Offset) 
+                    : await requestSender.GetResults<TenorResponseV2, TenorResultV2>(inlineQuery.Query, inlineQuery.Offset);
 
                 await bot.AnswerInlineQuery(inlineQuery.Id, queryResult.Item1, 0, false, queryResult.Item2);
             }

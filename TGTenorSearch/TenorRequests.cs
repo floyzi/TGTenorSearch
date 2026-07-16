@@ -15,13 +15,13 @@ namespace TGTenorSearch
 
         HttpClient? client = new();
 
-        internal async Task<(List<InlineQueryResult>, string)> GetResults<TTenorResponse, TTenorResult>(string q, bool isV1, string? offset = "")
+        internal async Task<(List<InlineQueryResult>, string)> GetResults<TTenorResponse, TTenorResult>(string q, string? offset = "")
           where TTenorResponse : TenorResponseBase<TTenorResult>
           where TTenorResult : TenorResultBase
         {
             var results = new List<InlineQueryResult>();
 
-            var tenorResult = await Search<TTenorResponse>(q, isV1, offset);
+            var tenorResult = await Search<TTenorResponse>(q, offset);
 
             if (tenorResult == null || tenorResult.Results == null || tenorResult.Results.Count == 0) return new(results, "");
 
@@ -53,13 +53,13 @@ namespace TGTenorSearch
             return new(results, tenorResult.Next!);
         }
 
-        async Task<T> Search<T>(string q, bool isV1, string? offset = "") where T : class
+        async Task<T> Search<T>(string q, string? offset = "") where T : class
         {
             if (client == null) throw new InvalidOperationException();
 
-            if (!isV1 && string.IsNullOrEmpty(Program.Config!.ClientKey)) throw new InvalidOperationException("No client key provided for V2 api request");
+            if (!Program.IsV1 && string.IsNullOrEmpty(Program.Config!.ClientKey)) throw new InvalidOperationException("No client key provided for V2 api request");
 
-            var uri = new UriBuilder(isV1
+            var uri = new UriBuilder(Program.IsV1
                 ? (TENOR_V1_API + (!string.IsNullOrEmpty(q) ? "/search" : "/trending"))
                 : TENOR_V2_API + (!string.IsNullOrEmpty(q) ? "/search" : "/featured"));
 
@@ -72,9 +72,9 @@ namespace TGTenorSearch
                 query["q"] = q;
 
             query["limit"] = "50";
-            query["media_filter"] = isV1 ? "minimal" : "gif,tinygif,mp4";
+            query["media_filter"] = Program.IsV1 ? "minimal" : "gif,tinygif,mp4";
 
-            if (!isV1)
+            if (!Program.IsV1)
                 query["client_key"] = Program.Config.ClientKey;
 
             if (!string.IsNullOrEmpty(offset))
