@@ -21,6 +21,9 @@ namespace TGTenorSearch
         internal async Task Launch(string token)
         {
             requestSender = new();
+
+            Console.WriteLine("Connected to Telegram bot API...");
+
             bot = new(token);
 
             var me = await bot!.GetMe();
