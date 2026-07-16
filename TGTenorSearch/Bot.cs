@@ -51,7 +51,7 @@ namespace TGTenorSearch
             if (bot == null) throw new InvalidOperationException();
 
             //days without proper telegram bot command handling: 4719
-            if ((message.Chat.IsDirectMessages && message.Text == "/start") || message.Text == "/start@" + currentUsername)
+            if ((message.Chat.Type == ChatType.Private && message.Text == "/start") || message.Text == "/start@" + currentUsername)
             {
                 await bot.SendMessage(message.Chat, $"This bot can help you find and share GIFs. " +
                     $"It works automatically, no need to add it anywhere. " +
