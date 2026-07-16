@@ -10,6 +10,7 @@ namespace TGTenorSearch
     internal class Bot
     {
         TelegramBotClient? bot;
+
         internal async Task Launch(string token)
         {
             bot = new TelegramBotClient(token);
