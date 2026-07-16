@@ -3,6 +3,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
+using TGTenorSearch.Models;
 
 namespace TGTenorSearch
 {
@@ -55,27 +56,27 @@ namespace TGTenorSearch
 
             var res = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, uri.Uri));
 
-            var json = JsonElement.Parse(await res.Content.ReadAsStringAsync());
+            var json = JsonSerializer.Deserialize<TenorResponse>(await res.Content.ReadAsStringAsync());
 
-            foreach (var gif in json.GetProperty("results").EnumerateArray())
+            foreach (var gif in json.Results)
             {
-                var gifMedia = gif.GetProperty("media").EnumerateArray().FirstOrDefault().GetProperty("gif");
+                var gifMedia = gif.Media[0]["gif"];
 
-                var gifDims = gifMedia.GetProperty("dims").EnumerateArray();
+                Console.WriteLine(gif.Media[0]["gif"]);
 
                 results.Add(new InlineQueryResultGif()
                 {
-                    Id = gif.GetProperty("id").GetString(),
-                    GifUrl = gifMedia.GetProperty("url").GetString(),
-                    ThumbnailUrl = gifMedia.GetProperty("preview").GetString(),
-                    GifDuration = (int)gifMedia.GetProperty("duration").GetSingle(),
-                    GifWidth = gifDims.ElementAt(0).GetInt32(),
-                    GifHeight = gifDims.ElementAt(1).GetInt32(),
+                    Id = gif.Id,
+                    GifUrl = gifMedia.Url,
+                    ThumbnailUrl = gifMedia.Preview,
+                 
+                    GifWidth = gifMedia.Dimensions.ElementAt(0),
+                    GifHeight = gifMedia.Dimensions.ElementAt(1),
                     
                 });
             }
 
-            await bot.AnswerInlineQuery(inlineQuery.Id, results, nextOffset: json.GetProperty("next").GetString(), cacheTime: 0);
+            await bot.AnswerInlineQuery(inlineQuery.Id, results, nextOffset: json.Next, cacheTime: 0);
         }
     }
 }
