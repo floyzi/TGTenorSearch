@@ -11,6 +11,9 @@ namespace TGTenorSearch.Models
         public string? BotToken { get; set; }
 
         [JsonPropertyName("key")]
-        public string? TenorKey { get; set; }
+        public string? APIKey { get; set; }
+
+        [JsonPropertyName("client_key")]
+        public string? ClientKey { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace TGTenorSearch.Models
+namespace TGTenorSearch.Models.Tenor
 {
     public class TenorMedia
     {
