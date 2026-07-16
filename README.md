@@ -8,11 +8,10 @@ Supports both versions of Tenor API<br>
 | --- | --- | --- | --- |
 | Gboard for iOS | 3Z0688EVWYKH | - | v1 |
 | Gboard for Android | AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ | gboard | v2 |
-| Tenor Web | AIzaSyCZt6SSh5VgVPzD9fhyzG1DprdPRhtoaR4 | tenor_web | v2 |
+| Tenor Website | AIzaSyCZt6SSh5VgVPzD9fhyzG1DprdPRhtoaR4 | tenor_web | v2 |
 
 # Running
-
-Compile it and place this configuration file next to executable with name config.json
+Compile solution and place following configuration file with the name ``config.json`` next to the executable files
 ```
 {
     "token": "",
@@ -23,8 +22,8 @@ Compile it and place this configuration file next to executable with name config
 ```
 
 - token: Telegram Bot token
-- key: Tenor API key from table above
-- client_key: Tenor Client key from table above (leave blank for v1 keys)
-- dev_id: Your Telegram ID (for debug info in /start message)
+- key: Tenor API key from the table above
+- client_key: Tenor Client key from the table above (leave blank for v1 keys)
+- dev_id: Your Telegram ID (for the debug info in /start message)
 
 ###### Written on CSharp because i don't know any other languages <3
