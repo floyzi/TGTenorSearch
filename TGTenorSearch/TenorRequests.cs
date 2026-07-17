@@ -15,14 +15,13 @@ namespace TGTenorSearch
 
         readonly HttpClient? client = new();
 
-        internal async Task<(List<InlineQueryResult>, string)> GetResults<TResponse>(string q, string? offset = "")
-          where TResponse : ITenorResponse
+        internal async Task<(List<InlineQueryResult>, string)> GetResults<TResponse>(string q, string? offset = "") where TResponse : ITenorResponse
         {
-            var results = new List<InlineQueryResult>();
-
             var tenorResult = await Search<TResponse>(q, offset);
 
-            if (tenorResult == null || tenorResult.Results == null || !tenorResult.Results.Any()) return new(results, "");
+            if (tenorResult == null || tenorResult.Results == null || !tenorResult.Results.Any()) return new([], "");
+
+            var results = new List<InlineQueryResult>(50);
 
             foreach (var gif in tenorResult.Results!)
             {
@@ -81,15 +80,13 @@ namespace TGTenorSearch
 
             uri.Query = query.ToString();
 
-            var res = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, uri.Uri));
+            using var res = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, uri.Uri), HttpCompletionOption.ResponseHeadersRead);
 
             res.EnsureSuccessStatusCode();
 
-            var str = await res.Content.ReadAsStringAsync();
+            await using var strm = await res.Content.ReadAsStreamAsync();
 
-            if (string.IsNullOrEmpty(str)) throw new Exception("Invalid tenor response");
-
-            return JsonSerializer.Deserialize<T>(str)!;
+            return await JsonSerializer.DeserializeAsync<T>(strm) ?? throw new Exception("Invalid tenor response");
         }
     }
 }

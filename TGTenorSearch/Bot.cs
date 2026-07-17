@@ -66,7 +66,7 @@ namespace TGTenorSearch
                 if (message.From?.Id == Program.Config!.DevID)
                 {
                     var upT = DateTime.UtcNow - Program.StartedAt;
-                    var mem = Process.GetCurrentProcess().WorkingSet64 / 1024.0 / 1024.0;
+                    var mem = Process.GetCurrentProcess().PrivateMemorySize64 / 1024.0 / 1024.0;
 
                     sb.AppendLine($"\nDEBUG: uptime: {(int)upT.TotalDays}d {upT.Hours}h {upT.Minutes}m {upT.Seconds}s | mem: {mem:F1} MB | commit: {TGTenorSearchBuildDetails.CommitHash[..12]}");
                 }
@@ -98,7 +98,7 @@ namespace TGTenorSearch
                     {
                         Id = inlineQuery.Id,
                         Title = "Error",
-                        Description = "An exception were thrown, click to see the details",
+                        Description = "An exception was thrown, click to see the details",
                         InputMessageContent = new InputTextMessageContent(e.ToString())
                     }
                 ], 0);
