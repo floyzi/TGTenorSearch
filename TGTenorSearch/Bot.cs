@@ -1,12 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using System.Text.Json;
-using System.Web;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
-using TGTenorSearch.Models.Tenor;
 using TGTenorSearch.Models.Tenor.V1;
 using TGTenorSearch.Models.Tenor.V2;
 
@@ -81,11 +78,13 @@ namespace TGTenorSearch
 
             try
             {
+                Console.WriteLine(inlineQuery.From.LanguageCode);
+
                 if (string.IsNullOrEmpty(Program.Config!.APIKey)) throw new InvalidOperationException("No tenor API key provided");
 
                 var queryResult = Program.IsV1
-                    ? await requestSender.GetResults<TenorResponseV1>(inlineQuery.Query, inlineQuery.Offset) 
-                    : await requestSender.GetResults<TenorResponseV2>(inlineQuery.Query, inlineQuery.Offset);
+                    ? await requestSender.GetResults<TenorResponseV1>(inlineQuery.Query, inlineQuery.Offset, inlineQuery.From.LanguageCode) 
+                    : await requestSender.GetResults<TenorResponseV2>(inlineQuery.Query, inlineQuery.Offset, inlineQuery.From.LanguageCode);
 
                 await bot.AnswerInlineQuery(inlineQuery.Id, queryResult.Item1, 0, false, queryResult.Item2);
             }

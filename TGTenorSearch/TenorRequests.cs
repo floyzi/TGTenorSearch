@@ -15,9 +15,9 @@ namespace TGTenorSearch
 
         readonly HttpClient? client = new();
 
-        internal async Task<(List<InlineQueryResult>, string)> GetResults<TResponse>(string q, string? offset = "") where TResponse : ITenorResponse
+        internal async Task<(List<InlineQueryResult>, string)> GetResults<TResponse>(string q, string? offset = "", string? lang = "en") where TResponse : ITenorResponse
         {
-            var tenorResult = await Search<TResponse>(q, offset);
+            var tenorResult = await Search<TResponse>(q, offset, lang);
 
             if (tenorResult == null || tenorResult.Results == null || !tenorResult.Results.Any()) return new([], "");
 
@@ -51,7 +51,7 @@ namespace TGTenorSearch
             return new(results, tenorResult.Next!);
         }
 
-        async Task<T> Search<T>(string q, string? offset = "") where T : ITenorResponse
+        async Task<T> Search<T>(string q, string? offset = "", string? lang = "en") where T : ITenorResponse
         {
             if (client == null) throw new InvalidOperationException();
 
@@ -64,7 +64,7 @@ namespace TGTenorSearch
             var query = HttpUtility.ParseQueryString(string.Empty);
 
             query["key"] = Program.Config!.APIKey;
-            query["locale"] = "en_US";
+            query["locale"] = lang;
 
             if (!string.IsNullOrEmpty(q))
                 query["q"] = q;
