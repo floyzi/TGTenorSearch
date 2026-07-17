@@ -78,8 +78,6 @@ namespace TGTenorSearch
 
             try
             {
-                Console.WriteLine(inlineQuery.From.LanguageCode);
-
                 if (string.IsNullOrEmpty(Program.Config!.APIKey)) throw new InvalidOperationException("No tenor API key provided");
 
                 var queryResult = Program.IsV1
@@ -91,14 +89,22 @@ namespace TGTenorSearch
             catch (Exception e)
             {
                 Console.WriteLine(e);
+
+                var sb = new StringBuilder();
+                sb.AppendLine("<b>EXCEPTION</b>");
+                sb.AppendLine($"<pre>{e.ToString()}</pre>");
+
                 await bot.AnswerInlineQuery(inlineQuery.Id,
                 [
                     new InlineQueryResultArticle()
                     {
-                        Id = inlineQuery.Id,
+                        Id = Guid.NewGuid().ToString(),
                         Title = "Error",
                         Description = "An exception was thrown, click to see the details",
-                        InputMessageContent = new InputTextMessageContent(e.ToString())
+                        InputMessageContent = new InputTextMessageContent(sb.ToString()) 
+                        {
+                            ParseMode = ParseMode.Html,
+                        }
                     }
                 ], 0);
             }
