@@ -14,6 +14,7 @@ namespace TGTenorSearch
         string? currentUsername;
         TelegramBotClient? bot;
         TenorRequests? requestSender;
+        int inlineUses;
 
         internal async Task Launch(string token)
         {
@@ -65,7 +66,7 @@ namespace TGTenorSearch
                     var upT = DateTime.UtcNow - Program.StartedAt;
                     var mem = Process.GetCurrentProcess().PrivateMemorySize64 / 1024.0 / 1024.0;
 
-                    sb.AppendLine($"\nDEBUG: uptime: {(int)upT.TotalDays}d {upT.Hours}h {upT.Minutes}m {upT.Seconds}s | mem: {mem:F1} MB | commit: {TGTenorSearchBuildDetails.CommitHash[..12]}");
+                    sb.AppendLine($"\n<i>DEBUG: uptime: {(int)upT.TotalDays}d {upT.Hours}h {upT.Minutes}m {upT.Seconds}s | mem: {mem:F1} MB | commit: {TGTenorSearchBuildDetails.CommitHash[..12]} | inline uses: {inlineUses}</i>");
                 }
 
                 await bot.SendMessage(message.Chat, sb.ToString(), ParseMode.Html);
@@ -78,6 +79,8 @@ namespace TGTenorSearch
 
             try
             {
+                inlineUses++;
+
                 if (string.IsNullOrEmpty(Program.Config!.APIKey)) throw new InvalidOperationException("No tenor API key provided");
 
                 var queryResult = Program.IsV1
